@@ -2,6 +2,7 @@ const express = require('express');
 const {
   createProduct,
   getProducts,
+  getProductsByCategory,
   getProductById,
   updateProduct,
   deleteProduct
@@ -22,6 +23,22 @@ const router = express.Router();
 
 router.get('/', getProducts);
 
+/**
+ * @swagger
+ * /api/products/category/{category}:
+ *   get:
+ *     summary: Get products by category
+ *     parameters:
+ *       - in: path
+ *         name: category
+ *         required: true
+ *         schema:
+ *           type: string
+ *     responses:
+ *       200:
+ *         description: Products filtered by category
+ */
+router.get('/category/:category', getProductsByCategory);
 router.get('/:id', getProductById);
 router.post('/', protect, createProduct);
 router.put('/:id', protect, updateProduct);

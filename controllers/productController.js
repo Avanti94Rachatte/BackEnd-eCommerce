@@ -19,6 +19,18 @@ exports.getProducts = async (req, res) => {
     res.status(500).json({ message: err.message });
   }
 };
+// gte product by getProductsByCategory
+
+exports.getProductsByCategory = async (req, res) => {
+  try {
+    const category = req.params.category;
+    const products = await Product.find({ category });
+    res.status(200).json(products);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+};
+
 
 // Get single product
 exports.getProductById = async (req, res) => {
