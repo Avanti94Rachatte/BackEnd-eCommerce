@@ -4,6 +4,9 @@ const { protect } = require('../middleware/authMiddleware');
 
 const router = express.Router();
 
+const { body } = require('express-validator');
+router.post('/', body('productId').notEmpty(), addToCart);
+
 /**
  * @swagger
  * /api/favorites:

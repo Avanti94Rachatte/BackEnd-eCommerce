@@ -7,6 +7,11 @@ const router = express.Router();
 const { body } = require('express-validator');
 const validateRequest = require('../middleware/validateRequest');
 
+
+const { body } = require('express-validator');
+router.post('/', body('productId').notEmpty(), addToCart);
+
+
 router.post(
   '/cart',
   [
