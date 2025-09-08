@@ -1,30 +1,61 @@
-const express = require('express');
-const { addToCart, getCart, removeFromCart } = require('../controllers/cartController');
-const { protect } = require('../middleware/authMiddleware');
-const cartController = require('../controllers/cartController');
+import express from 'express';
+import { body } from 'express-validator';
+import validateRequest from '../middleware/validateRequest.js';
+import { addToCart, getCart } from '../controllers/cartController.js';
+
 const router = express.Router();
 
-const { body } = require('express-validator');
-const validateRequest = require('../middleware/validateRequest');
+/**
+ * @swagger
+ * tags:
+ *   name: Cart
+ *   description: Cart management
+ */
 
+/**
+ * @swagger
+ * /api/cart:
+ *   post:
+ *     summary: Add a product to cart
+ *     tags: [Cart]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               userId:
+ *                 type: string
+ *               productId:
+ *                 type: string
+ *               quantity:
+ *                 type: integer
+ *     responses:
+ *       201:
+ *         description: Item added
+ */
+router.post('/', [
+  body('userId').notEmpty(),
+  body('productId').notEmpty(),
+  body('quantity').optional().isInt({ min: 1 })
+], validateRequest, addToCart);
 
-const { body } = require('express-validator');
-router.post('/', body('productId').notEmpty(), addToCart);
+/**
+ * @swagger
+ * /cart:
+ *   get:
+ *     summary: Get cart items
+ *     tags: [Cart]
+ *     parameters:
+ *       - in: query
+ *         name: userId
+ *         schema: { type: string }
+ *         required: true
+ *     responses:
+ *       200:
+ *         description: Cart items
+ */
+router.get('/', getCart);
 
-
-router.post(
-  '/cart',
-  [
-    body('productId').notEmpty().withMessage('Product ID is required'),
-    body('quantity').isInt({ min: 1 }).withMessage('Quantity must be at least 1')
-  ],
-  validateRequest,
-  cartController.addToCart
-);
-
-
-router.get('/', protect, getCart);
-router.post('/add', protect, addToCart);
-router.post('/remove', protect, removeFromCart);
-
-module.exports = router;
+export default router;

@@ -1,47 +1,75 @@
-const express = require('express');
-const {
-  createProduct,
-  getProducts,
-  getProductsByCategory,
-  getProductById,
-  updateProduct,
-  deleteProduct
-} = require('../controllers/productController');
-const { protect } = require('../middleware/authMiddleware');
+import express from 'express';
+import { getAllProducts, getProductsByCategory, addProduct } from '../controllers/productController.js';
+import { body } from 'express-validator';
+import validateRequest from '../middleware/validateRequest.js';
 
 const router = express.Router();
+
+/**
+ * @swagger
+ * tags:
+ *   name: Products
+ *   description: Product management
+ */
 
 /**
  * @swagger
  * /products:
  *   get:
  *     summary: Get all products
+ *     tags: [Products]
  *     responses:
  *       200:
- *         description: List of products
+ *         description: Array of products
  */
-
-router.get('/', getProducts);
+router.get('/', getAllProducts);
 
 /**
  * @swagger
- * /api/products/category/{category}:
+ * /products/{category}:
  *   get:
  *     summary: Get products by category
+ *     tags: [Products]
  *     parameters:
  *       - in: path
  *         name: category
- *         required: true
  *         schema:
  *           type: string
+ *         required: true
+ *         description: Category name
  *     responses:
  *       200:
- *         description: Products filtered by category
+ *         description: Array of products in category
  */
-router.get('/category/:category', getProductsByCategory);
-router.get('/:id', getProductById);
-router.post('/', protect, createProduct);
-router.put('/:id', protect, updateProduct);
-router.delete('/:id', protect, deleteProduct);
+router.get('/:category', getProductsByCategory);
 
-module.exports = router;
+/**
+ * @swagger
+ * /products:
+ *   post:
+ *     summary: Add a product (for testing/admin)
+ *     tags: [Products]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               name:
+ *                 type: string
+ *               price:
+ *                 type: number
+ *               category:
+ *                 type: string
+ *     responses:
+ *       201:
+ *         description: Product created
+ */
+router.post('/', [
+  body('name').notEmpty(),
+  body('price').isNumeric(),
+  body('category').notEmpty()
+], validateRequest, addProduct);
+
+export default router;

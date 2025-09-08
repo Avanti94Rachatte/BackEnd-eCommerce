@@ -1,50 +1,54 @@
-const express = require('express');
-const morgan = require('morgan');
-const cors = require('cors');
-const swaggerUi = require('swagger-ui-express');
-const swaggerJsdoc = require('swagger-jsdoc');
-const errorHandler = require('./middleware/errorHandler');
+import express from 'express';
+import cors from 'cors';
+import morgan from 'morgan';
+import swaggerJsdoc from 'swagger-jsdoc';
+import swaggerUi from 'swagger-ui-express';
 
-// Import Routes
-const authRoutes = require('./routes/authRoutes');
-const productRoutes = require('./routes/productRoutes');
-const cartRoutes = require('./routes/cartRoutes');
-const orderRoutes = require('./routes/orderRoutes');
-const wishlistRoutes = require('./routes/wishlistRoutes');
-const favoriteRoutes = require('./routes/favoriteRoutes'); // if you’re using it
+import productRoutes from './routes/productRoutes.js';
+import cartRoutes from './routes/cartRoutes.js';
+import favoriteRoutes from './routes/favoriteRoutes.js';
+
+import errorHandler from './middleware/errorHandler.js';
 
 const app = express();
 
-// Middleware
+// middleware
 app.use(cors());
-app.use(express.json());
+app.use(express.json()); 
 app.use(morgan('dev'));
 
-// Routes
-app.use('/api/auth', authRoutes);
-app.use('/api/products', productRoutes);
-app.use('/api/cart', cartRoutes);
-app.use('/api/orders', orderRoutes);
-app.use('/api/wishlist', wishlistRoutes);
-app.use('/api/favorites', favoriteRoutes); // optional if you want both wishlist & favorites
-
-// Swagger
+// Swagger setup
 const swaggerOptions = {
   definition: {
     openapi: '3.0.0',
     info: {
       title: 'Ecommerce API',
       version: '1.0.0',
-      description: 'API documentation for your backend',
+      description: 'Ecommerce backend API'
     },
+    servers: [
+      { url: `http://localhost:${process.env.PORT || 3000}` }
+    ]
   },
-  apis: ['./routes/*.js'],
+
+  // scan route files for JSDoc
+  apis: ['./routes/*.js'] 
 };
 
 const swaggerSpec = swaggerJsdoc(swaggerOptions);
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 
-// Error Handler
+// routes
+app.use('/products', productRoutes);        
+app.use('/api/cart', cartRoutes);          
+app.use('/cart', cartRoutes);              
+app.use('/api/favorites', favoriteRoutes); 
+app.use('/favorites', favoriteRoutes);     
+
+// health
+app.get('/', (req, res) => res.json({ ok: true, message: 'MY SHOP' }));
+
+// error handler
 app.use(errorHandler);
 
-module.exports = app;
+export default app;

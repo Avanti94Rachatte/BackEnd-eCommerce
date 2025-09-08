@@ -1,32 +1,19 @@
-const app = require('./app');
-const mongoose = require('mongoose');
-require('dotenv').config();
+import dotenv from 'dotenv';
+dotenv.config();
 
-const swaggerUi = require('swagger-ui-express');
-const swaggerJsdoc = require('swagger-jsdoc');
+import app from './app.js';
+import connectDB from './config/mongodb.js';
 
-const options = {
-  definition: {
-    openapi: '3.0.0',
-    info: { title: 'eCommerce API', version: '1.0.0' },
-  },
-  apis: ['./routes/*.js'],
-};
+const PORT = process.env.PORT || 3000;
 
-const specs = swaggerJsdoc(options);
-app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(specs));
-
-const morgan = require('morgan');
-app.use(morgan('dev'));
-
-mongoose.connect(process.env.MONGO_URI, {
-  useNewUrlParser: true,
-  useUnifiedTopology: true,
-})
-  .then(() => {
-    console.log('✅ MongoDB connected');
-    app.listen(process.env.PORT || 3000, () => {
-      console.log(`Server running on port ${process.env.PORT || 3000}`);
+(async () => {
+  try {
+    await connectDB();
+    app.listen(PORT, () => {
+      console.log(`Server started on PORT :${PORT}`);
     });
-  })
-  .catch(err => console.error(' DB connection error:', err));
+  } catch (err) {
+    console.error('Failed to start server', err);
+    process.exit(1);
+  }
+})();
