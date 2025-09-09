@@ -9,6 +9,7 @@ import cartRoutes from './routes/cartRoutes.js';
 import favoriteRoutes from './routes/favoriteRoutes.js';
 
 import errorHandler from './middleware/errorHandler.js';
+import userRoutes from './routes/userRoute.js';
 
 const app = express();
 
@@ -43,7 +44,9 @@ app.use('/products', productRoutes);
 app.use('/api/cart', cartRoutes);          
 app.use('/cart', cartRoutes);              
 app.use('/api/favorites', favoriteRoutes); 
-app.use('/favorites', favoriteRoutes);     
+app.use('/favorites', favoriteRoutes); 
+
+app.use("/api/users",userRoutes);
 
 // health
 app.get('/', (req, res) => res.json({ ok: true, message: 'MY SHOP' }));
